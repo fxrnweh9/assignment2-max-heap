@@ -27,7 +27,7 @@ public class PerformanceTracker {
         swap++;
     }
 
-    public void incarrayAccesses(long count){
+    public void incArrayAccesses(long count){
         arrayAccesses += count;
     }
 
