@@ -46,7 +46,7 @@ import java.util.List;
         tracker.incArrayAccesses(1);
 
         // Maintain heap property by moving element upward
-        bubleUp(size);
+        bubbleUp(size);
         size++;
     }
 
@@ -66,7 +66,7 @@ import java.util.List;
     /**
      /**     * Moves an element up until heap property is restored.     *     * Optimization: Instead of swapping elements multiple times (which would increment swap count),     * we store the element in a local variable and shift parent elements downward.     * Only one assignment is made at the final position, reducing array accesses and swaps.     *     * Time complexity: O(log n)     *     * @param index index of element to bubble up
      */
-    public void bubleUp(int index) {
+    public void bubbleUp(int index) {
         T value = heap[index];
         tracker.incArrayAccesses(1);
 
@@ -114,8 +114,7 @@ import java.util.List;
      */    @Override
     public T extractMax() {
         if (size == 0) {
-            System.out.println("Heap is empty");
-            return null;
+            throw new IllegalStateException("Heap is empty");
         }
 
         T max = heap[0];
@@ -123,14 +122,14 @@ import java.util.List;
         heap[size - 1] = null;
         size--;
 
-        if (size > 0) bubleDown(0);
+        if (size > 0) bubbleDown(0);
         return max;
     }
 
     /**
      * Moves an element down until heap property is restored.     *     * Time complexity: O(log n)     *     * @param index index of element to bubble down
      */
-    public void bubleDown(int index) {
+    public void bubbleDown(int index) {
         T value = heap[index];
         tracker.incArrayAccesses(1);
 
@@ -188,7 +187,7 @@ import java.util.List;
         tracker.incArrayAccesses(1);
 
         // Rebalance upward
-        bubleUp(index);
+        bubbleUp(index);
     }
 
     /**
