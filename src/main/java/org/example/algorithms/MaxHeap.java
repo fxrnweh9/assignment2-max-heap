@@ -2,13 +2,11 @@ package org.example.algorithms;
 
 import org.example.metrics.PerformanceTracker;
 
+import java.util.List;
+
 /**
- * Implementation of a generic Max-Heap data structure.
- * Provides insert, extractMax, increaseKey, and utility operations.
- *
- * @param <T> type parameter extending Comparable
- */
-public class MaxHeap<T extends Comparable<T>> implements IMaxHeap<T> {
+ * Implementation of a generic Max-Heap data structure. * Provides insert, extractMax, increaseKey, and utility operations. * * @param <T> type parameter extending Comparable
+ */public class MaxHeap<T extends Comparable<T>> implements IMaxHeap<T> {
 
     /** Internal array to store heap elements */
     private T[] heap;
@@ -20,27 +18,18 @@ public class MaxHeap<T extends Comparable<T>> implements IMaxHeap<T> {
     private PerformanceTracker tracker;
 
     /**
-     * Constructs a MaxHeap with given initial capacity and performance tracker.
-     *
-     * @param capacity initial size of the heap array
+     * Constructs a MaxHeap with given initial capacity and performance tracker.     *     * @param capacity initial size of the heap array
      * @param tracker performance tracker instance
-     */
-    public MaxHeap(int capacity, PerformanceTracker tracker) {
+     */    public MaxHeap(int capacity, PerformanceTracker tracker) {
         this.heap = (T[]) new Comparable[capacity];
         this.size = 0;
         this.tracker = tracker;
     }
 
     /**
-     * Inserts a new value into the heap.
-     * Automatically expands capacity if needed.
-     *
-     * Time complexity: O(log n)
-     *
-     * @param value value to insert
+     * Inserts a new value into the heap.     * Automatically expands capacity if needed.     *     * Time complexity: O(log n)     *     * @param value value to insert
      * @throws IllegalArgumentException if value is null
-     */
-    @Override
+     */    @Override
     public void insert(T value) {
         if (value == null) {
             throw new IllegalArgumentException("Value = null");
@@ -60,12 +49,9 @@ public class MaxHeap<T extends Comparable<T>> implements IMaxHeap<T> {
     }
 
     /**
-     * Swaps two elements in the heap.
-     *
-     * @param i first index
+     * Swaps two elements in the heap.     *     * @param i first index
      * @param j second index
-     */
-    public void swap(int i, int j) {
+     */    public void swap(int i, int j) {
         tracker.incSwap();
         tracker.incArrayAccesses(4);
 
@@ -75,62 +61,50 @@ public class MaxHeap<T extends Comparable<T>> implements IMaxHeap<T> {
     }
 
     /**
-     * Moves an element up until heap property is restored.
-     *
-     * Time complexity: O(log n)
-     *
-     * @param index index of element to bubble up
-     */
-    public void bubleUp(int index) {
+     /**     * Moves an element up until heap property is restored.     *     * Optimization: Instead of swapping elements multiple times (which would increment swap count),     * we store the element in a local variable and shift parent elements downward.     * Only one assignment is made at the final position, reducing array accesses and swaps.     *     * Time complexity: O(log n)     *     * @param index index of element to bubble up
+     */    public void bubleUp(int index) {
+        T value = heap[index];
+        tracker.incArrayAccesses(1);
+
         while (index > 0) {
             int p = parent(index);
+            tracker.incComparisons();
+            if (value.compareTo(heap[p]) <= 0) break;
 
-            // Compare with parent and swap if greater
-            if (heap[index].compareTo(heap[p]) > 0) {
-                swap(index, p);
-                index = p;
-            } else {
-                break;
-            }
+            heap[index] = heap[p];
+            tracker.incArrayAccesses(1);
+            index = p;
         }
+        heap[index] = value;
+        tracker.incArrayAccesses(1);
     }
 
     /**
-     * Doubles heap capacity when full.
-     * Preserves all current elements.
-     *
-     * Time complexity: O(n)
-     */
-    public void encureCapacity() {
+     * Doubles heap capacity when full.     * Preserves all current elements.     *     * Time complexity: O(n)     */    public void encureCapacity() {
         int newCap = heap.length * 2 + 1;
         T[] newHeap = (T[]) new Comparable[newCap];
-
-        for (int i = 0; i < heap.length; i++) {
-            newHeap[i] = heap[i];
-            tracker.incArrayAccesses(1); // track data copy
-        }
+        System.arraycopy(heap, 0, newHeap, 0, heap.length);
+        tracker.incArrayAccesses(heap.length); // сохраняем трекинг
         heap = newHeap;
     }
 
     /**
-     * Returns the index of the parent node.
-     *
-     * @param index current node index
+     * Inserts multiple elements into the heap sequentially.     * @param values list of elements
+     */    public void batchInsert(List<T> values) {
+        for (T val : values) insert(val);
+    }
+
+    /**
+     * Returns the index of the parent node.     *     * @param index current node index
      * @return parent index
-     */
-    public int parent(int index) {
+     */    public int parent(int index) {
         return (index - 1) / 2;
     }
 
     /**
-     * Removes and returns the maximum (root) element from the heap.
-     *
-     * Time complexity: O(log n)
-     *
-     * @return maximum element
+     * Removes and returns the maximum (root) element from the heap.     *     * Time complexity: O(log n)     *     * @return maximum element
      * @throws IllegalStateException if heap is empty
-     */
-    @Override
+     */    @Override
     public T extractMax() {
         if (size == 0) {
             throw new IllegalStateException("Heap is empty");
@@ -149,52 +123,36 @@ public class MaxHeap<T extends Comparable<T>> implements IMaxHeap<T> {
     }
 
     /**
-     * Moves an element down until heap property is restored.
-     *
-     * Time complexity: O(log n)
-     *
-     * @param index index of element to bubble down
-     */
-    public void bubleDown(int index) {
-        while (index < size) {
-            int left = (index * 2) + 1;   // left child
-            int right = (index * 2) + 2;  // right child
-            int largest = index;
+     * Moves an element down until heap property is restored.     *     * Time complexity: O(log n)     *     * @param index index of element to bubble down
+     */    public void bubleDown(int index) {
+        T value = heap[index];
+        tracker.incArrayAccesses(1);
 
-            // Compare with left child
-            if (left < size) {
-                tracker.incComparisons();
-                if (heap[left].compareTo(heap[largest]) > 0) {
-                    largest = left;
-                }
-            }
+        int half = size / 2;
+        while (index < half) {
+            int left = index * 2 + 1;
+            int right = left + 1;
+            int largest = left;
 
-            // Compare with right child
-            if (right < size) {
-                tracker.incComparisons();
-                if (heap[right].compareTo(heap[largest]) > 0) {
-                    largest = right;
-                }
-            }
+            tracker.incComparisons();
+            if (right < size && heap[right].compareTo(heap[left]) > 0) largest = right;
 
-            // Swap if needed
-            if (largest != index) {
-                swap(index, largest);
-                tracker.incArrayAccesses(2);
-                index = largest;
-            } else {
-                break;
-            }
+            tracker.incComparisons();
+            if (value.compareTo(heap[largest]) >= 0) break;
+
+            heap[index] = heap[largest];
+            tracker.incArrayAccesses(1);
+            index = largest;
         }
+
+        heap[index] = value;
+        tracker.incArrayAccesses(1);
     }
 
     /**
-     * Returns (but does not remove) the maximum element.
-     *
-     * @return top element
+     * Returns (but does not remove) the maximum element.     *     * @return top element
      * @throws IllegalStateException if heap is empty
-     */
-    public T peek() {
+     */    public T peek() {
         if (size == 0) {
             throw new IllegalStateException("Heap is empty");
         }
@@ -203,15 +161,11 @@ public class MaxHeap<T extends Comparable<T>> implements IMaxHeap<T> {
     }
 
     /**
-     * Increases the key at given index to a new, higher value.
-     * Maintains heap property by bubbling up.
-     *
-     * @param index index of element to increase
+     * Increases the key at given index to a new, higher value.     * Maintains heap property by bubbling up.     *     * @param index index of element to increase
      * @param newValue new higher value
      * @throws IllegalArgumentException if new value <= old value
      * @throws IndexOutOfBoundsException if index invalid
-     */
-    @Override
+     */    @Override
     public void increaseKey(int index, T newValue) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Invalid index");
@@ -230,11 +184,8 @@ public class MaxHeap<T extends Comparable<T>> implements IMaxHeap<T> {
     }
 
     /**
-     * Returns the maximum element without removal.
-     *
-     * @return max element
-     */
-    public T getMax() {
+     * Returns the maximum element without removal.     *     * @return max element
+     */    public T getMax() {
         if (size == 0) {
             throw new IllegalStateException("Heap is empty");
         }
@@ -244,16 +195,14 @@ public class MaxHeap<T extends Comparable<T>> implements IMaxHeap<T> {
 
     /**
      * @return current heap size
-     */
-    @Override
+     */    @Override
     public int size() {
         return size;
     }
 
     /**
      * @return true if heap has no elements
-     */
-    @Override
+     */    @Override
     public boolean isEmpty() {
         return size == 0;
     }
