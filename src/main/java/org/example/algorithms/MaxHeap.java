@@ -20,7 +20,8 @@ import java.util.List;
     /**
      * Constructs a MaxHeap with given initial capacity and performance tracker.     *     * @param capacity initial size of the heap array
      * @param tracker performance tracker instance
-     */    public MaxHeap(int capacity, PerformanceTracker tracker) {
+     */
+    public MaxHeap(int capacity, PerformanceTracker tracker) {
         this.heap = (T[]) new Comparable[capacity];
         this.size = 0;
         this.tracker = tracker;
@@ -29,10 +30,11 @@ import java.util.List;
     /**
      * Inserts a new value into the heap.     * Automatically expands capacity if needed.     *     * Time complexity: O(log n)     *     * @param value value to insert
      * @throws IllegalArgumentException if value is null
-     */    @Override
+     */
+    @Override
     public void insert(T value) {
         if (value == null) {
-            throw new IllegalArgumentException("Value = null");
+            throw new IllegalArgumentException("Cannot insert null");
         }
 
         // Resize array if full
@@ -51,7 +53,8 @@ import java.util.List;
     /**
      * Swaps two elements in the heap.     *     * @param i first index
      * @param j second index
-     */    public void swap(int i, int j) {
+     */
+    public void swap(int i, int j) {
         tracker.incSwap();
         tracker.incArrayAccesses(4);
 
@@ -62,7 +65,8 @@ import java.util.List;
 
     /**
      /**     * Moves an element up until heap property is restored.     *     * Optimization: Instead of swapping elements multiple times (which would increment swap count),     * we store the element in a local variable and shift parent elements downward.     * Only one assignment is made at the final position, reducing array accesses and swaps.     *     * Time complexity: O(log n)     *     * @param index index of element to bubble up
-     */    public void bubleUp(int index) {
+     */
+    public void bubleUp(int index) {
         T value = heap[index];
         tracker.incArrayAccesses(1);
 
@@ -80,7 +84,8 @@ import java.util.List;
     }
 
     /**
-     * Doubles heap capacity when full.     * Preserves all current elements.     *     * Time complexity: O(n)     */    public void encureCapacity() {
+     * Doubles heap capacity when full.     * Preserves all current elements.     *     * Time complexity: O(n)     */
+    public void encureCapacity() {
         int newCap = heap.length * 2 + 1;
         T[] newHeap = (T[]) new Comparable[newCap];
         System.arraycopy(heap, 0, newHeap, 0, heap.length);
@@ -90,14 +95,16 @@ import java.util.List;
 
     /**
      * Inserts multiple elements into the heap sequentially.     * @param values list of elements
-     */    public void batchInsert(List<T> values) {
+     */
+    public void batchInsert(List<T> values) {
         for (T val : values) insert(val);
     }
 
     /**
      * Returns the index of the parent node.     *     * @param index current node index
      * @return parent index
-     */    public int parent(int index) {
+     */
+    public int parent(int index) {
         return (index - 1) / 2;
     }
 
@@ -107,7 +114,8 @@ import java.util.List;
      */    @Override
     public T extractMax() {
         if (size == 0) {
-            throw new IllegalStateException("Heap is empty");
+            System.out.println("Heap is empty");
+            return null;
         }
 
         T max = heap[0];
@@ -115,16 +123,14 @@ import java.util.List;
         heap[size - 1] = null;
         size--;
 
-        tracker.incArrayAccesses(3);
-
-        // Restore heap property from root downward
-        bubleDown(0);
+        if (size > 0) bubleDown(0);
         return max;
     }
 
     /**
      * Moves an element down until heap property is restored.     *     * Time complexity: O(log n)     *     * @param index index of element to bubble down
-     */    public void bubleDown(int index) {
+     */
+    public void bubleDown(int index) {
         T value = heap[index];
         tracker.incArrayAccesses(1);
 
@@ -152,7 +158,8 @@ import java.util.List;
     /**
      * Returns (but does not remove) the maximum element.     *     * @return top element
      * @throws IllegalStateException if heap is empty
-     */    public T peek() {
+     */
+    public T peek() {
         if (size == 0) {
             throw new IllegalStateException("Heap is empty");
         }
@@ -165,7 +172,8 @@ import java.util.List;
      * @param newValue new higher value
      * @throws IllegalArgumentException if new value <= old value
      * @throws IndexOutOfBoundsException if index invalid
-     */    @Override
+     */
+    @Override
     public void increaseKey(int index, T newValue) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Invalid index");
@@ -185,7 +193,8 @@ import java.util.List;
 
     /**
      * Returns the maximum element without removal.     *     * @return max element
-     */    public T getMax() {
+     */
+    public T getMax() {
         if (size == 0) {
             throw new IllegalStateException("Heap is empty");
         }
@@ -195,14 +204,16 @@ import java.util.List;
 
     /**
      * @return current heap size
-     */    @Override
+     */
+    @Override
     public int size() {
         return size;
     }
 
     /**
      * @return true if heap has no elements
-     */    @Override
+     */
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }
